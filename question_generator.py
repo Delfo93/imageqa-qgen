@@ -50,9 +50,10 @@ Examples:
 
 from nltk.corpus import wordnet
 from nltk.stem.wordnet import WordNetLemmatizer
+import parser
 import argparse
 import copy
-import cPickle as pkl
+import _pickle as pkl
 import logger
 import os
 import re
@@ -233,7 +234,7 @@ class TreeParser:
         self.classNameStack = []
         self.childrenStack = [[]]
         self.root = None
-        self.rootsList = []
+        self.rootsList = [""]
         self.level = 0
         self.stateTable = [self.state0, self.state1, self.state2,
                            self.state3, self.state4, self.state5, self.state6]
@@ -256,7 +257,7 @@ class TreeParser:
 
     @staticmethod
     def exception(raw, i):
-        print raw
+        print (raw)
         raise Exception(
             'Unexpected character "%c" (%d) at position %d'
             % (raw[i], ord(raw[i]), i))
@@ -585,6 +586,7 @@ class QuestionGenerator:
         roots = []
 
         # Directly search for the top-most S.
+        print("elemento root",root)
         node = root.children[0]
         if node.className == 'S':
             if len(node.children) >= 3:
@@ -1012,11 +1014,12 @@ def stanfordParseSingle(parserFolder, sentence):
 def stanfordParseFile(parserFolder, inputFilename, outputFilename):
     """Call stanford parser on an input file.
     """
+    print("I got this far")
     stanfordParserPath = os.path.join(parserFolder, 'lexparser.sh')
-
+    print("and also here :D",stanfordParserPath)
     with open(outputFilename, 'w') as fout:
-        subprocess.call([stanfordParserPath, inputFilename], stdout=fout)
-
+        subprocess.call([stanfordParserPath, inputFilename], stdout=fout,shell=True)
+    print("Finally here :D")
     pass
 
 
@@ -1028,9 +1031,12 @@ def runSentence(parserFolder, sentence):
     gen = QuestionGenerator()
     for i in range(len(s)):
         parser.parse(s[i] + '\n')
+    print("I got FAR AWAY",parser)
     tree = parser.rootsList[0]
+    #tree = [" "]
     log.info('Parser result:')
     log.info(tree)
+    print("WOW",tree)
     qaiter = gen.askWhoWhat(tree.copy())
     printQAs(qaiter)
     qaiter = gen.askHowMany(tree.copy())
@@ -1057,7 +1063,7 @@ def parseArgs():
     parser = argparse.ArgumentParser(description='Question Generator')
     parser.add_argument(
         '-parser_path',
-        default='/home/mren/third_party/stanford-parser-full-2015-04-20',
+        default='D:\Personal\Proyects\stanford-parser-full-2017-06-09',
         help='Path to stanford parser')
     parser.add_argument(
         '-sentence', default=None, help='Single sentence input')
